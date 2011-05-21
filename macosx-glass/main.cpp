@@ -141,9 +141,11 @@ void draw_lighted_mesh(mesh* mesh, glm::mat4 const& mv, glm::mat4 const& p) {
 }
 
 void initialize() {    
-    attribute attribs[] = { { ATTRIB_VERTEX, "position" }, { ATTRIB_TEXCOORD, "tex_coord" } };
-    thickness_program = load_shader("thickness.vsh", "thickness.fsh", attribs, 1);
-    quad_program = load_shader("quad.vsh", "quad.fsh", attribs, 2);
+    attribute thickness_attribs[] = { { ATTRIB_VERTEX, "position" }, { ATTRIB_NORMAL, "normal" } };
+    thickness_program = load_shader("thickness.vsh", "thickness.fsh", thickness_attribs, 2);
+
+    attribute quad_attribs[] = { { ATTRIB_VERTEX, "position" }, { ATTRIB_TEXCOORD, "tex_coord" } };
+    quad_program = load_shader("quad.vsh", "quad.fsh", quad_attribs, 2);
     
     attribute normal_attribs[] = { { ATTRIB_VERTEX, "position" }, { ATTRIB_NORMAL, "normal" } };
     normal_program = load_shader("normal.vsh", "normal.fsh", normal_attribs, 2);
@@ -160,7 +162,6 @@ void draw() {
     glm::mat4 modelview = glm::translate(0.0f, 0.1f, -2.0f);
     modelview = glm::rotate(modelview, 25.0f + rotation, 0.0f, 1.0f, 0.0f);
     modelview = glm::rotate(modelview, 270.0f, 1.0f, 0.0f, 0.0f);
-    glm::mat4 mvp = perspective * modelview;
     
     // Draw depth into depth_texture
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -168,18 +169,22 @@ void draw() {
     glClear(GL_COLOR_BUFFER_BIT);
     
     glUseProgram(thickness_program);
-    glUniformMatrix4fv(glGetUniformLocation(thickness_program, "mvp"), 1, GL_FALSE, &mvp[0][0]);
+    int modelview_uniform = glGetUniformLocation(thickness_program, "modelview");
+    int projection_uniform = glGetUniformLocation(thickness_program, "projection");
+    glUniformMatrix4fv(modelview_uniform, 1, GL_FALSE, &modelview[0][0]);
+    glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, &perspective[0][0]);
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
-    draw_mesh(dragon_mesh, ATTRIB_VERTEX);
+    draw_mesh(dragon_mesh, ATTRIB_VERTEX, ATTRIB_NORMAL);
     glDisable(GL_BLEND);
+    //save_framebuffer("out.raw");
     
     
     // Render full screen quad
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // 0 is the default buffer
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(quad_program);
@@ -190,7 +195,7 @@ void draw() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, depth_texture);
     glUniform1i(depth_texture_uniform, 0);
-    glUniform3f(color_uniform, 173.0f / 255.0f, 255.0f / 255.0f, 204.0f / 255.0f);
+    glUniform3f(color_uniform, 73.0f / 255.0f, 174.0f / 255.0f, 255.0f / 255.0f);
     
     draw_quad(quad_vbo, ATTRIB_VERTEX);
     glBindTexture(GL_TEXTURE_2D, 0);

@@ -19,13 +19,6 @@ struct vec3
     float x, y, z;
 };
 
-glm::vec3 calc_normal(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3) {
-    glm::vec3 ve1 = v2 - v1;
-    glm::vec3 ve2 = v3 - v1;
-    glm::vec3 normal = glm::cross(ve1, ve2);
-    return glm::normalize(normal);
-}
-
 mesh* load_mesh_ctm(char const* filepath) {
     CTMcontext context = ctmNewContext(CTM_IMPORT);
     ctmLoad(context, path_for_resource_and_type(filepath));

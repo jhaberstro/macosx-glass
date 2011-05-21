@@ -18,7 +18,8 @@ void main()
         discard;
     }
     
-    float sigma = 10.0;
-    float intensity = exp(-sigma * thickness);
+    float fresnel = 1.0 - texture2D(depth_texture, coordVarying).g;
+    float sigma = 11.0;
+    float intensity = exp(-sigma * thickness) * fresnel;
     gl_FragColor = vec4(color * intensity, 1.0);
 }

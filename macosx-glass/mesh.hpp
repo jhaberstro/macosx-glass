@@ -9,7 +9,7 @@
 #ifndef MESH_HPP
 #define MESH_HPP
 
-#import <OpenGL/gl.h>
+#include <OpenGL/gl.h>
 
 struct mesh
 {
